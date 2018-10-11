@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask-restplus = "*"
+flask-migrate = "*"
+flask-script = "*"
+python-dotenv = "*"
+yapf = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
