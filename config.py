@@ -11,7 +11,7 @@ class Config:
     Common configurations
     """
 
-    SECRET_KEY = getenv('SECRET KEY', 'my_precious_secret_key')
+    SECRET_KEY = getenv('SECRET_KEY')
     DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATION = False
     SQLALCHEMY_DATABASE_URI = getenv('DATABASE_URI')
@@ -21,6 +21,7 @@ class DevelopmentConfig(Config):
     """
     Development configurations
     """
+    SECRET_KEY = getenv('SECRET_KEY')
     SQLALCHEMY_DATABASE_URI = 'postgresql://francky:postgres@localhost/book_share'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

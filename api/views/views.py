@@ -11,13 +11,14 @@ from main import api
 from api.models.models import Users
 from api.utilities.schemas.user_schema import UserSchema
 from api.utilities.messages.success_messages import SUCCESS_MESSAGES
-from api.utilities.validators.user_validator import create_a_user
+from api.utilities.validators.user_validator import UserAuthentication
 
 
 @api.route('/registration')
-class Registration(Resource):
-    """
-    Resource class for peforming crud on the asset categories
+class UserRegistration(Resource):
+    """ User Registration resource
+
+    Resource class for registering user to the app
     """
 
     def post(self):
@@ -26,7 +27,7 @@ class Registration(Resource):
         user_data_schema = UserSchema()
         user_data = user_data_schema.load_object_into_schema(request_data)
 
-        user = create_a_user(user_data)
+        user = UserAuthentication.user_creation(user_data)
         user.save()
 
         return {
@@ -34,3 +35,26 @@ class Registration(Resource):
             'message': SUCCESS_MESSAGES['created'],
             'data': user_data_schema.dump(user).data
         }, 201
+
+
+@api.route('/login')
+class UserLogin(Resource):
+    """ User Login Resource
+    
+    Resource class for loging in the user to the app
+    """
+
+    def post(self):
+        request_data = request.get_json()
+
+        user_data_schema = UserSchema()
+        user_data = user_data_schema.load_object_into_schema(
+            request_data, partial=True)
+
+        user, access_token = UserAuthentication.user_login(user_data)
+
+        return {
+            'message': SUCCESS_MESSAGES['logged_in'],
+            "user": user,
+            "access_token": access_token.decode()
+        }, 200

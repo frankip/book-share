@@ -6,5 +6,12 @@ SERIALIZATION_ERRORS = {
     'field_required': "This field is required",
     'email_syntax': "Ensure that the email field is filled out correctly",
     'user_exists': "Sorry a user with that email already exists",
-    'error': "An error occurred"
+    'error': "An error occurred",
+    'empty_fields': 'Ensure that email field and password field are present',
+    'invalid_credentials': 'Invalid Email or Password, Please Try again'
+}
+
+JWT_ERRORS = {
+    "token_expired": "Expired token. Please login to get a new token",
+    "invalid_token": "Invalid token. Please register or login"
 }

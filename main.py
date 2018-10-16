@@ -33,10 +33,9 @@ def create_app(config_name):
     """
     Initialize the app instance depending on the enviroment passed to it
     """
-    app = Flask(__name__)
+    app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(config_name)
-    app.config[
-        'SQLALCHEMY_DATABASE_URI'] = 'postgresql://francky:postgres@localhost/book_share'
+    app.config['SQLALCHEMY_DATABASE_URI'] = getenv('DATABASE_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # initialize error handlers

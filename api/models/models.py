@@ -1,13 +1,17 @@
 """Module for User model."""
 # System Imports
 from datetime import datetime, timedelta
+from os import getenv
 
 # Third party Imports
 import jwt
+from flask import current_app as app
+from passlib.apps import custom_app_context as pwd_context
 
 # Local Imports
 from main import db
 from config import app_config
+from api.utilities.messages.error_messages import JWT_ERRORS
 
 
 class Users(db.Model):
@@ -27,15 +31,41 @@ class Users(db.Model):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
-        self.password = password
+        self.password = pwd_context.encrypt(password)
 
     def save(self):
         """Creates a new user and saves to the database"""
         db.session.add(self)
         db.session.commit()
 
+    def verify_password(self, password):
+        """
+        check pasword provided with hash in db
+
+        Args:
+            password (string): pasword string sent from the user
+
+        Returns:
+            bool: Returns True or false
+        """
+        return pwd_context.verify(password, self.password)
+
+    def get_full_names(self):
+        """
+        Returns the full namesod user
+        """
+        return self.first_name + ' ' + self.last_name
+
     def generate_token(self, user_id):
-        """Generating the access token"""
+        """
+        Generating the access token
+
+        Args:
+            user_id (int): the user id
+
+        Returns:
+            access_token (str) : Returns access token
+        """
         try:
             #set up payload with an expiration time
             payload = {
@@ -44,7 +74,9 @@ class Users(db.Model):
                 'sub': user_id
             }
             # create the byte string token using the payload and the SECRET key
-            jwt_string = jwt.encode(payload, app.secret_key, algorithm='HS256')
+
+            jwt_string = jwt.encode(
+                payload, getenv('SECRET_KEY'), algorithm='HS256')
             return jwt_string
 
         except Exception as error:
@@ -53,17 +85,24 @@ class Users(db.Model):
 
     @staticmethod
     def decode_token(token):
-        """ Decodes the access token from the Authorization header. """
+        """ Decodes the token 
+        Decodes the access token from the Authorization header.
+        Args:
+            token (string) : token string 
+        
+        Returns: 
+            userid (int): returns the user id 
+        """
         try:
             # try to decode the token using our SECRET variable
-            payload = jwt.decode(token, app.secret_key)
+            payload = jwt.decode(token, getenv('SECRET_KEY'))
             return payload['sub']
         except jwt.ExpiredSignatureError:
             # The token is expired, return an error string
-            return "Expired token. Please login to get a new token"
+            return JWT_ERRORS['token_expired']
         except jwt.InvalidTokenError:
             #The token is invalid, return an error string
-            return "Invalid token. Please register or login"
+            return JWT_ERRORS['invalid_token']
 
     def __repr__(self):
-        return "<User: {}>".format(self.first_name)
+        return "<User: {}>".format(self.get_full_names)

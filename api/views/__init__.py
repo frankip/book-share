@@ -1,1 +1,2 @@
-from .views import Registration
+from .views import UserRegistration
+from .views import UserLogin

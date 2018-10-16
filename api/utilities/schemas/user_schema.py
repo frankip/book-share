@@ -3,7 +3,6 @@ User model serializer
 """
 # Third Party Imports
 from marshmallow import fields, post_load
-from passlib.apps import custom_app_context as pwd_context
 
 # Local Imports
 from api.utilities.schemas.base_schema import AuditableBaseSchema
@@ -32,9 +31,5 @@ class UserSchema(AuditableBaseSchema):
         validate=email_validator)
     password = fields.String(
         required=True,
+        load_only=True,
         error_messages={'required': SERIALIZATION_ERRORS['field_required']})
-
-    @post_load
-    def hash_password(self, data):
-        if 'password' in data:
-            data['password'] = pwd_context.encrypt(data.get('password'))
