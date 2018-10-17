@@ -15,13 +15,19 @@ from api.utilities.validators.user_validator import UserAuthentication
 
 
 @api.route('/registration')
-class UserRegistration(Resource):
+class UserRegistrationResource(Resource):
     """ User Registration resource
 
     Resource class for registering user to the app
     """
 
     def post(self):
+        """
+        POST method for adding books.
+
+        Payload should have the following parameters:
+            name(str): name of the book
+        """
         request_data = request.get_json()
 
         user_data_schema = UserSchema()
@@ -38,7 +44,7 @@ class UserRegistration(Resource):
 
 
 @api.route('/login')
-class UserLogin(Resource):
+class UserLoginResource(Resource):
     """ User Login Resource
     
     Resource class for loging in the user to the app

@@ -1,17 +1,22 @@
 """Module for User model."""
 # System Imports
-from datetime import datetime, timedelta
 from os import getenv
+from datetime import datetime, timedelta
+from sqlalchemy.orm import column_property
+from sqlalchemy import select, func
 
 # Third party Imports
 import jwt
-from flask import current_app as app
 from passlib.apps import custom_app_context as pwd_context
 
 # Local Imports
 from main import db
-from config import app_config
+
+# messages
 from api.utilities.messages.error_messages import JWT_ERRORS
+
+# Helpers
+from api.middlewares.base_validator import ValidationError
 
 
 class Users(db.Model):
@@ -26,6 +31,8 @@ class Users(db.Model):
     password = db.Column(db.String(256), nullable=False)
     first_name = db.Column(db.String(256), nullable=False)
     last_name = db.Column(db.String(256), nullable=False)
+    books = db.relationship(
+        'Books', backref='user', cascade="delete", lazy='dynamic')
 
     def __init__(self, first_name, last_name, email, password):
         self.first_name = first_name
@@ -99,10 +106,50 @@ class Users(db.Model):
             return payload['sub']
         except jwt.ExpiredSignatureError:
             # The token is expired, return an error string
-            return JWT_ERRORS['token_expired']
+            raise ValidationError({
+                'message': JWT_ERRORS['token_expired']
+            }, 401)
         except jwt.InvalidTokenError:
             #The token is invalid, return an error string
-            return JWT_ERRORS['invalid_token']
+            raise ValidationError({
+                'message': JWT_ERRORS['invalid_token']
+            }, 401)
+
+    @property
+    def book_count(self):
+        """
+        Get book count for each user
+        Returns:
+            result(int): users count for corresponding roles
+        """
+
+        from api.models.models import Books
+
+        query = select([func.count(
+            Books.id)]).where(Books.uploded_by == self.id)
+        result = db.engine.execute(query).scalar()
+        return result
 
     def __repr__(self):
         return "<User: {}>".format(self.get_full_names)
+
+
+class Books(db.Model):
+    """
+    This class handles all the logic and methods
+    associated with a books
+    """
+    __tablename__ = 'books'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(256), nullable=False)
+    uploded_by = db.Column(db.Integer, db.ForeignKey(Users.id), nullable=False)
+
+    def __init__(self, name, uploded_by):
+        self.name = name
+        self.uploded_by = uploded_by
+
+    def save(self):
+        """Creates a new user and saves to the database"""
+        db.session.add(self)
+        db.session.commit()

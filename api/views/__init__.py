@@ -1,2 +1,3 @@
-from .views import UserRegistration
-from .views import UserLogin
+from .user import (UserRegistrationResource, UserLoginResource)
+
+from .books import BookResource
