@@ -153,3 +153,6 @@ class Books(db.Model):
         """Creates a new user and saves to the database"""
         db.session.add(self)
         db.session.commit()
+
+    def __repr__(self):
+        return "<Book: {}>".format(self.name)

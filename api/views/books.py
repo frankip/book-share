@@ -56,6 +56,20 @@ class BookResource(Resource):
                 'status': 'success',
                 'message': SUCCESS_MESSAGES['created'],
                 'data': book_data_schema.dump(book).data
-            }
+            }, 201
         else:
             raise ValidationError({'message': JWT_ERRORS['no_token']}, 401)
+
+    def get(self):
+        """
+        Get method getting all books.
+        """
+        books = Books.query.all()
+
+        book_schema = BookSchema(many=True, exclude=['bookCount'])
+
+        return {
+            'status': 'success',
+            'data': book_schema.dump(books).data,
+            'message': SUCCESS_MESSAGES['fetched'].format('Books')
+        }, 200

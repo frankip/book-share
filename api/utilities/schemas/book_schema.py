@@ -42,7 +42,8 @@ class BookSchema(AuditableBaseSchema):
         Raises:
             ValidationError: raises validation if book count is grater than 10
         """
-        if data.get('user').get('bookCount') > 10:
+        if isinstance(data,
+                      dict) and data.get('user').get('bookCount', 0) > 10:
             raise ValidationError(
                 {
                     'message': SERIALIZATION_ERRORS['books_number_exceed']
