@@ -9,6 +9,13 @@ flask-migrate = "*"
 flask-script = "*"
 python-dotenv = "*"
 yapf = "*"
+flask-cors = "*"
+flask-sqlalchemy = "*"
+"psycopg2" = "*"
+jwt = "*"
+pyjwt = "*"
+marshmallow = "*"
+passlib = "*"
 
 [dev-packages]
 
